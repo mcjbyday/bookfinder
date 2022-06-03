@@ -10,14 +10,32 @@ import { GET_ME } from '../utils/queries';
 import { REMOVE_BOOK } from '../utils/mutations';
 
 const SavedBooks = () => {
-  
-  const { loading, data } = useQuery(GET_ME);
-  
-  const meData = data?.me || [];
 
-  const [userData, setUserData] = useState(meData);
+  // this uses graphQL mutation query to load the data as loading and data
+  const { loading, data } = useQuery(GET_ME);
+  console.log(data)
+  // 'optional chaining' - normally if we did data.me, if dat is undefined, throw error
+  // if data.me is undefined, then I'd like the value to be undefined as 'meData'
+  // but with the double pipe operator, we're saying make it an empty [] regardless
+  const userData = data?.me || [];
+
+  // before we were using useState and useEffect hooks. 
+  // data will live inside data object on second render. 
+  // const [userData, setUserData] = useState({});
+  const [removeBook, { error }] = useMutation(REMOVE_BOOK, {
+    update(cache, { data: { removeBook } }) {
+      try {
+        cache.writeQuery({
+          query: GET_ME,
+          data: { me: removeBook },
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    },
+  });
   
-  const [deleteBook, { error }] = useMutation(REMOVE_BOOK);
+  
 
   // // use this to determine if `useEffect()` hook needs to run again
   const userDataLength = Object.keys(userData).length;
@@ -25,35 +43,10 @@ const SavedBooks = () => {
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId) => {
-    const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-    if (!token) {
-      return false;
-    }
-
-    // // If there is no `profileId` in the URL as a parameter, execute the `GET_ME` query instead for the logged in user's information
-    // const { loading, data } = useQuery(
-    //   profileId ? QUERY_SINGLE_PROFILE : GET_ME,
-    //   {
-    //     variables: { profileId: profileId },
-    //   }
-    // );
-
-    // // Check if data is returning from the `GET_ME` query, then the `QUERY_SINGLE_PROFILE` query
-    // const profile = data?.me || data?.profile || {};
-
-
-    // 
-    // const { loading, data } = useQuery(userParam ? QUERY_USER : GET_ME, {
-    //   variables: { username: userParam },
-    // });
-
     try {
-      const updatedUser = await deleteBook(bookId, token);
-
-      setUserData(updatedUser);
-      // upon success, remove book's id from localStorage
-      removeBookId(bookId);
+      const { data } = await removeBook({
+        variables: { bookId },
+      });
     } catch (err) {
       console.error(err);
     }
