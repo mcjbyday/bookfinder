@@ -82,7 +82,7 @@ const resolvers = {
           { $pull: { savedBooks: book._id } }
         );
 
-        return User;
+        return context.user;
       }
       throw new AuthenticationError('You need to be logged in!');
     },
