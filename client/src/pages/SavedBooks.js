@@ -18,6 +18,7 @@ const SavedBooks = () => {
   // if data.me is undefined, then I'd like the value to be undefined as 'meData'
   // but with the double pipe operator, we're saying make it an empty [] regardless
   const userData = data?.me || [];
+  console.log(userData.savedBooks)
 
   // before we were using useState and useEffect hooks. 
   // data will live inside data object on second render. 

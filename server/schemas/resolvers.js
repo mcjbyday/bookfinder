@@ -42,13 +42,13 @@ const resolvers = {
       return { token, user };
     },
     // used activity 14 mutations resolvers
-    saveBook: async (parent, { authors, description, title, bookId }, context) => {
+    saveBook: async (parent, { authors, description, title, bookId, image, link }, context) => {
       // console.log(context.user);
       if (context.user) {
         return await User.findOneAndUpdate(
             { _id: context.user._id },
             {
-              $addToSet: { savedBooks: { authors, description, title, bookId } },
+              $addToSet: { savedBooks: { authors, description, title, bookId, image, link  } },
             },
             { new: true }
             )
