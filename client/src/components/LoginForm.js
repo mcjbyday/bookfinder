@@ -28,16 +28,12 @@ const LoginForm = () => {
       event.preventDefault();
       event.stopPropagation();
     }
-
+    
     try {
-      const { data } = await login(userFormData);
+      const { data } = await login({
+        variables: { ...userFormData },
+      });
 
-      // if (!response.ok) {
-      //   throw new Error('something went wrong!');
-      // }
-
-      // const { token, user } = await response.json();
-      // console.log(user);
       Auth.login(data.login.token);
     } catch (err) {
       console.error(err);
@@ -45,7 +41,6 @@ const LoginForm = () => {
     }
 
     setUserFormData({
-      username: '',
       email: '',
       password: '',
     });
