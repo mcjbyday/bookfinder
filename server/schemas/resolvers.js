@@ -43,46 +43,26 @@ const resolvers = {
     },
     // used activity 14 mutations resolvers
     saveBook: async (parent, { author, description, title, bookId }, context) => {
+      // console.log(context.user);
       if (context.user) {
-          const savedBook = await User.findOneAndUpdate(
-            { _id },
+        return await User.findOneAndUpdate(
+            { _id: context.user._id },
             {
               $addToSet: { savedBooks: { author, description, title, bookId } },
             },
             { new: true }
-            );
-        return thought;
+            ).populate('savedBooks.authors');;
       }
       throw new AuthenticationError('You need to be logged in!');
     },
-    // addThought: async (parent, { thoughtText }, context) => {
-    //   if (context.user) {
-    //     const thought = await Thought.create({
-    //       thoughtText,
-    //       thoughtAuthor: context.user.username,
-    //     });
-
-    //     await User.findOneAndUpdate(
-    //       { _id: context.user._id },
-    //       { $addToSet: { thoughts: thought._id } }
-    //     );
-
-    //     return thought;
-    //   }
-    //   throw new AuthenticationError('You need to be logged in!');
-    // },
     removeBook: async (parent, { bookId }, context) => {
       if (context.user) {
-        const book = await User.find({
-          bookId: bookId,
-        });
-
-        await User.findOneAndUpdate(
+        
+        return await User.findOneAndUpdate(
           { _id: context.user._id },
-          { $pull: { savedBooks: book._id } }
+          { $pull: { savedBooks: {bookId} } },
+          { new: true }
         );
-
-        return context.user;
       }
       throw new AuthenticationError('You need to be logged in!');
     },
