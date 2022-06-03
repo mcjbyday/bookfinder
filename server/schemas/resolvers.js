@@ -42,16 +42,16 @@ const resolvers = {
       return { token, user };
     },
     // used activity 14 mutations resolvers
-    saveBook: async (parent, { author, description, title, bookId }, context) => {
+    saveBook: async (parent, { authors, description, title, bookId }, context) => {
       // console.log(context.user);
       if (context.user) {
         return await User.findOneAndUpdate(
             { _id: context.user._id },
             {
-              $addToSet: { savedBooks: { author, description, title, bookId } },
+              $addToSet: { savedBooks: { authors, description, title, bookId } },
             },
             { new: true }
-            ).populate('savedBooks.authors');;
+            )
       }
       throw new AuthenticationError('You need to be logged in!');
     },
